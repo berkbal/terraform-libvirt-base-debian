@@ -1,0 +1,16 @@
+#cloud-config
+hostname: debian12-base
+
+users:
+  - name: root
+    ssh-authorized-keys:
+      - SSH-PUBLIC-KEY
+    lock_passwd: true
+    shell: /bin/bash
+
+packages:
+  - vim
+  - htop
+  - curl
+  - ncdu
+  

@@ -15,6 +15,14 @@ resource "libvirt_volume" "debian12-base-qcow2" {
   pool = "default"
   source = "https://cloud.debian.org/images/cloud/bookworm/20250530-2128/debian-12-genericcloud-amd64-20250530-2128.qcow2"
   format = "qcow2"
+  
+}
+
+resource "libvirt_cloudinit_disk" "commoninit" {
+  name           = "debian-12-base-cloudinit.iso" # 
+  pool           = "default"
+  user_data      = file("${path.module}/files/cloud-init.yml")
+  network_config = ""
 }
 
 resource "libvirt_domain" "debian-12-base" {
@@ -29,6 +37,9 @@ resource "libvirt_domain" "debian-12-base" {
   disk {
     volume_id = "${libvirt_volume.debian12-base-qcow2.id}"
   }
+
+  cloudinit = libvirt_cloudinit_disk.commoninit.id
+
 
   console {
     type = "pty"
