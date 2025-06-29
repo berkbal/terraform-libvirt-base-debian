@@ -1,4 +1,4 @@
-# Terraform Base Debian VM (Libvirt)
+# Terraform ile Base Debian VM Oluşturma
 
 Bu repo Terraform ile Libvirt kullanarak temel bir Debian 12 sanal makinesi (VM) oluşturmak için gerekli yapılandırma dosyalarını içerir. Sanal makine, cloud-init aracılığıyla otomatik olarak yapılandırılır. Hostname ayarlanır, root kullanıcısı için SSH anahtarı eklenir ve temel paketler kurulur. Root kullanıcısı için parola ile giriş devre dışı bırakılmıştır, yalnızca SSH anahtarı ile erişim mümkündür.
 
