@@ -1,8 +1,8 @@
 terraform {
   required_providers {
     libvirt = {
-      source = "dmacvicar/libvirt"
-      version = "0.8.3"
+      source  = "dmacvicar/libvirt"
+      version = "0.8.3" # En güncel ve stabil versiyonu kullanalım
     }
   }
 }
@@ -10,18 +10,23 @@ terraform {
 provider "libvirt" {
 }
 
-resource "libvirt_volume" "debian12-cloud-generic" {
-  name = "debian12-cloud-generic.qcow2"
-  pool = "default"
+resource "libvirt_volume" "debian12_cloud_image_base" {
+  name   = "debian12-cloud-base-image.qcow2"
+  pool   = "default"
   source = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
   format = "qcow2"
+  # Disk 'size' tekrar mount edilirken verilirse direkt boyutu ayarlanabilir.
 }
 
-resource "libvirt_volume" "debian12-base-disk" {
-  name = "debian12-base-disk.qcow2"
-  pool = "default"
-  format = "qcow2"
-  size = 20
+# --- Önceki volümü al ve boyutunu 20GB'a genişlet ---
+# Size Parametresi Burada Kullanılır.
+resource "libvirt_volume" "debian12_base_disk_expanded" {
+  name           = "debian12-base-disk-expanded.qcow2" # Genişletilmiş disk için ayrı bir isim
+  pool           = "default"
+  # 'source' yerine 'base_volume_id' kullanarak mevcut bir volümü referans alıyoruz.
+  base_volume_id = libvirt_volume.debian12_cloud_image_base.id 
+  format         = "qcow2"
+  size           = 20 * 1024 * 1024 * 1024 # 20 GB byte olarak.
 }
 
 resource "libvirt_cloudinit_disk" "cloudinit" {
@@ -41,11 +46,11 @@ resource "libvirt_domain" "debian-12-base" {
   }
 
   disk {
-    volume_id = "${libvirt_volume.debian12-cloud-generic.id}"
+    # Sanal makineye genişletilmiş diski bağlıyoruz
+    volume_id = libvirt_volume.debian12_base_disk_expanded.id
   }
-
+  
   cloudinit = libvirt_cloudinit_disk.cloudinit.id
-
 
   console {
     type = "pty"
