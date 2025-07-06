@@ -10,35 +10,41 @@ terraform {
 provider "libvirt" {
 }
 
-resource "libvirt_volume" "debian12-base-qcow2" {
-  name = "debian12-base.qcow2"
+resource "libvirt_volume" "debian12-cloud-generic" {
+  name = "debian12-cloud-generic.qcow2"
   pool = "default"
-  source = "https://cloud.debian.org/images/cloud/bookworm/20250530-2128/debian-12-genericcloud-amd64-20250530-2128.qcow2"
+  source = "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
   format = "qcow2"
-  
 }
 
-resource "libvirt_cloudinit_disk" "commoninit" {
-  name           = "debian-12-base-cloudinit.iso" # 
+resource "libvirt_volume" "debian12-base-disk" {
+  name = "debian12-base-disk.qcow2"
+  pool = "default"
+  format = "qcow2"
+  size = 20
+}
+
+resource "libvirt_cloudinit_disk" "cloudinit" {
+  name           = "debian-12-base-cloudinit.iso"
   pool           = "default"
   user_data      = file("${path.module}/files/cloud-init.yml")
-  network_config = ""
+  network_config = file("${path.module}/files/network-config.yml")
 }
 
 resource "libvirt_domain" "debian-12-base" {
   name   = "debian-12-base"
-  memory = "2048"
-  vcpu   = 2
+  memory = "8192"
+  vcpu   = 6
 
   network_interface {
-    network_name = "default"
+    bridge = "virbr0"
   }
 
   disk {
-    volume_id = "${libvirt_volume.debian12-base-qcow2.id}"
+    volume_id = "${libvirt_volume.debian12-cloud-generic.id}"
   }
 
-  cloudinit = libvirt_cloudinit_disk.commoninit.id
+  cloudinit = libvirt_cloudinit_disk.cloudinit.id
 
 
   console {

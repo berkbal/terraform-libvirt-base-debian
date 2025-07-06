@@ -1,11 +1,17 @@
 #cloud-config
+ssh_pwauth: true
 hostname: debian12-base
 
 users:
+  - name: debian
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: sudo
+    shell: /bin/bash
+    lock_passwd: false
+
   - name: root
-    ssh-authorized-keys:
-      - SSH-PUBLIC-KEY
     lock_passwd: true
+    ssh-authorized-keys: SSH-ANAHTARINIZ
     shell: /bin/bash
 
 packages:
@@ -13,3 +19,11 @@ packages:
   - htop
   - curl
   - ncdu
+  - net-tools
+
+runcmd:
+  - sed -i "s/127.0.1.1.*/127.0.1.1 debian12-base debian12-base.local/" /etc/hosts
+  - echo 'export PS1="\[\e[38;5;48m\]\u\[\e[m\]\[\e[38;5;141m\]@\[\e[38;5;206m\]\h\[\e[38;5;203m\][\$(hostname -I | awk '\''{print \$1}'\'')]\e[m\]\[\e[38;5;215m\] \w\[\e[38;5;141m\] > \[\e[m\]"' >> /home/debian/.bashrc
+  - echo 'export PS1="\[\e[38;5;48m\]\u\[\e[m\]\[\e[38;5;141m\]@\[\e[38;5;206m\]\h\[\e[38;5;203m\][\$(hostname -I | awk '\''{print \$1}'\'')]\e[m\]\[\e[38;5;215m\] \w\[\e[38;5;141m\] > \[\e[m\]"' >> /root/.bashrc
+  - [ systemctl, stop, apparmor ] # Test Amaçlı Makakinenin Hızlı Ayağa Kalkması İçin! Kesinlikle Önerilmez
+  - [ systemctl, disable, apparmor ] # Test Amaçlı Makakinenin Hızlı Ayağa Kalkması İçin! Kesinlikle Önerilmez
