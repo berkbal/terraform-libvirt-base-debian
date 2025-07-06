@@ -27,7 +27,7 @@ Bu repo Terraform ile Libvirt kullanarak temel bir Debian 12 sanal makinesi (VM)
     users:
       - name: root
         ssh-authorized-keys:
-          - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPs/hWAelf2ahoRid1xEPs75fecE/bci0Lt3RI6Feqpk berk@berk # Kendi public key'iniz buraya gelecek
+          - # Kendi public key'iniz buraya gelecek
         lock_passwd: true
         shell: /bin/bash
     # ...
